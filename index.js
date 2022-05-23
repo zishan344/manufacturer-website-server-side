@@ -45,6 +45,23 @@ async function run() {
       });
       res.send(singleProduct);
     });
+
+    //update product
+    app.put("/product/:id", async (req, res) => {
+      const productId = req.params.id;
+      const body = req.body;
+      const filter = { _id: ObjectId(productId) };
+      const options = { upsert: true };
+      const updateDoc = {
+        $set: body,
+      };
+      const result = await productCollection.updateOne(
+        filter,
+        updateDoc,
+        options
+      );
+      res.send(result);
+    });
   } finally {
   }
 }
