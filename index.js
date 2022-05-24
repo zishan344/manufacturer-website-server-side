@@ -136,6 +136,13 @@ async function run() {
       const products = await bookingCollection.find({}).toArray();
       res.send(products);
     });
+    // get single user product
+    app.get("/booking/:email", async (req, res) => {
+      const email = req.params.email;
+      console.log(email);
+      const products = await bookingCollection.find({ email }).toArray();
+      res.send(products);
+    });
   } finally {
   }
 }
@@ -148,3 +155,16 @@ app.get("/", (req, res) => {
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
 });
+
+/* https://i.ibb.co/xqkv2Gj/bummper.jpg
+https://i.ibb.co/R6NF14R/car-disk.jpg
+https://i.ibb.co/VTdKwkt/car-headlight.png
+https://i.ibb.co/J3NjXqF/disk.png
+https://i.ibb.co/QvBWFVk/download.png
+https://i.ibb.co/MnPCL7f/gas-padel.jpg
+https://i.ibb.co/sQ2nTHJ/gas-padel-2.jpg
+https://i.ibb.co/DL0DvHr/oil-filter.jpg
+https://i.ibb.co/nCHt3MB/pngwing-com.png
+https://i.ibb.co/JKHMJXj/side-miror.jpg
+https://i.ibb.co/G3JFQGL/Steering-Wheel.png
+https://i.ibb.co/zFkm2GR/Wiper-blade.jpg */
