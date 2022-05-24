@@ -26,8 +26,44 @@ async function run() {
     const userCollection = client.db("carTools").collection("user");
 
     // ver
+    function verifyJwt(req, res, next) {
+      const authHeader = req.headers.authorization;
+      if (!authHeader) {
+        return res.status(401).send({ message: "UnAuthorized access" });
+      }
+      const token = authHeader.split(" ")[1];
+      jwt.verify(token, process.env.ACCESS_TOKEN, function (err, decoded) {
+        if (err) {
+          return res.status(403).send({ message: "forbidden access" });
+        }
+        req.decoded = decoded;
+        next();
+      });
+    }
 
-    // jwt
+    // verify admin
+    const verifyAdmin = async (req, res, next) => {
+      const requester = req.decoded.email;
+      const requesterAccount = await userCollection.findOne({
+        email: requester,
+      });
+      if (requesterAccount.role === "Admin") {
+        next();
+      } else {
+        res.status(403).send({ message: "Forbidden" });
+      }
+    };
+
+    app.put("/users/admin/:email", verifyJwt, verifyAdmin, async (req, res) => {
+      const email = req.params.email;
+      const filter = { email: email };
+      const updateDoc = {
+        $set: { role: "Admin" },
+      };
+      const result = await userCollection.updateOne(filter, updateDoc);
+      res.send(result);
+    });
+
     app.put("/user/:email", async (req, res) => {
       const email = req.params.email;
       const user = req.body;
@@ -49,14 +85,14 @@ async function run() {
       const result = await productCollection.insertOne(product);
       res.send(result);
     });
+
     // get all product
     app.get("/products", async (req, res) => {
       const products = await productCollection.find({}).toArray();
       res.send(products);
     });
     // find single product
-    app.get("/product/:id", async (req, res) => {
-      console.log(req.headers.authorization);
+    app.get("/product/:id", verifyJwt, async (req, res) => {
       const product = await productCollection.findOne({
         _id: ObjectId(req.params.id),
       });
