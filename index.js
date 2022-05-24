@@ -1,5 +1,7 @@
 const express = require("express");
 const app = express();
+const jwt = require("jsonwebtoken");
+
 const port = process.env.PORT || 5000;
 const cors = require("cors");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
@@ -22,6 +24,25 @@ async function run() {
     const bookingCollection = client.db("carTools").collection("booking");
     const reviewCollection = client.db("carTools").collection("reviews");
     const userCollection = client.db("carTools").collection("user");
+
+    // ver
+
+    // jwt
+    app.put("/user/:email", async (req, res) => {
+      const email = req.params.email;
+      const user = req.body;
+      const filter = { email: email };
+      const options = { upsert: true };
+      const updateDoc = {
+        $set: user,
+      };
+      const result = await userCollection.updateOne(filter, updateDoc, options);
+      const accessToken = jwt.sign({ email: email }, process.env.ACCESS_TOKEN, {
+        expiresIn: "5d",
+      });
+      res.send({ result: result, accessToken: accessToken });
+    });
+
     //  post a product
     app.post("/product", async (req, res) => {
       const product = req.body;
@@ -35,6 +56,7 @@ async function run() {
     });
     // find single product
     app.get("/product/:id", async (req, res) => {
+      console.log(req.headers.authorization);
       const product = await productCollection.findOne({
         _id: ObjectId(req.params.id),
       });
