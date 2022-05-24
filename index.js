@@ -19,6 +19,9 @@ async function run() {
   try {
     await client.connect();
     const productCollection = client.db("carTools").collection("products");
+    const bookingCollection = client.db("carTools").collection("booking");
+    const reviewCollection = client.db("carTools").collection("reviews");
+    const userCollection = client.db("carTools").collection("user");
     //  post a product
     app.post("/product", async (req, res) => {
       const product = req.body;
@@ -61,6 +64,19 @@ async function run() {
         options
       );
       res.send(result);
+    });
+
+    // booking collection
+    // post booking
+    app.post("/booking", async (req, res) => {
+      const product = req.body;
+      const result = await bookingCollection.insertOne(product);
+      res.send(result);
+    });
+    // get all booking
+    app.get("/booking", async (req, res) => {
+      const products = await bookingCollection.find({}).toArray();
+      res.send(products);
     });
   } finally {
   }
