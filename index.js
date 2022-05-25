@@ -149,6 +149,20 @@ async function run() {
       });
       res.send(singleProduct);
     });
+
+    // review collection
+    //  post a review
+    app.post("/review", async (req, res) => {
+      const product = req.body;
+      const result = await reviewCollection.insertOne(product);
+      res.send(result);
+    });
+
+    // get all review
+    app.get("/reviews", async (req, res) => {
+      const products = await reviewCollection.find({}).toArray();
+      res.send(products);
+    });
   } finally {
   }
 }
