@@ -58,7 +58,7 @@ async function run() {
       const email = req.params.email;
       const filter = { email: email };
       const updateDoc = {
-        $set: { role: "Admin" },
+        $set: { role: "admin" },
       };
       const result = await userCollection.updateOne(filter, updateDoc);
       res.send(result);
@@ -100,7 +100,7 @@ async function run() {
     });
 
     // delete product
-    app.delete("/product/:id", async (req, res) => {
+    app.delete("/product/:id", verifyJwt, async (req, res) => {
       const singleProduct = await productCollection.deleteOne({
         _id: ObjectId(req.params.id),
       });
@@ -132,16 +132,22 @@ async function run() {
       res.send(result);
     });
     // get all booking
-    app.get("/booking", async (req, res) => {
+    app.get("/booking", verifyJwt, async (req, res) => {
       const products = await bookingCollection.find({}).toArray();
       res.send(products);
     });
     // get single user product
-    app.get("/booking/:email", async (req, res) => {
+    app.get("/booking/:email", verifyJwt, async (req, res) => {
       const email = req.params.email;
-      console.log(email);
       const products = await bookingCollection.find({ email }).toArray();
       res.send(products);
+    });
+    // delete self booking
+    app.delete("/booking/:id", verifyJwt, async (req, res) => {
+      const singleProduct = await bookingCollection.deleteOne({
+        _id: ObjectId(req.params.id),
+      });
+      res.send(singleProduct);
     });
   } finally {
   }
