@@ -54,14 +54,22 @@ async function run() {
       }
     };
 
-    app.put("/users/admin/:email", verifyJwt, verifyAdmin, async (req, res) => {
+    app.put("/users/admin/:email", async (req, res) => {
       const email = req.params.email;
+      console.log(email);
       const filter = { email: email };
       const updateDoc = {
         $set: { role: "admin" },
       };
       const result = await userCollection.updateOne(filter, updateDoc);
       res.send(result);
+    });
+
+    app.get("/admin/:email", verifyJwt, async (req, res) => {
+      const email = req.params.email;
+      const user = await userCollection.findOne({ email: email });
+      const isAdmin = user.role === "admin";
+      res.send({ admin: isAdmin });
     });
 
     app.put("/user/:email", async (req, res) => {
@@ -165,7 +173,7 @@ async function run() {
     });
 
     // get all user
-    app.get("/allUser", async (req, res) => {
+    app.get("/allUser", verifyJwt, async (req, res) => {
       const users = await userCollection.find({}).toArray();
       res.send(users);
     });
