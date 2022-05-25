@@ -163,6 +163,12 @@ async function run() {
       const products = await reviewCollection.find({}).toArray();
       res.send(products);
     });
+
+    // get all user
+    app.get("/allUser", async (req, res) => {
+      const users = await userCollection.find({}).toArray();
+      res.send(users);
+    });
   } finally {
   }
 }
