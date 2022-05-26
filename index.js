@@ -47,14 +47,14 @@ async function run() {
       const requesterAccount = await userCollection.findOne({
         email: requester,
       });
-      if (requesterAccount.role === "Admin") {
+      if (requesterAccount.role === "admin") {
         next();
       } else {
         res.status(403).send({ message: "Forbidden" });
       }
     };
 
-    app.put("/users/admin/:email", async (req, res) => {
+    app.put("/users/admin/:email", verifyJwt, verifyAdmin, async (req, res) => {
       const email = req.params.email;
       console.log(email);
       const filter = { email: email };
@@ -208,11 +208,26 @@ async function run() {
       const updatedDoc = {
         $set: {
           paid: true,
+          status: "pending",
           transactionId: payment.transactionId,
         },
       };
 
       const result = await paymentCollection.insertOne(payment);
+      const updatedBooking = await bookingCollection.updateOne(
+        filter,
+        updatedDoc
+      );
+      res.send(updatedBooking);
+    });
+    app.patch("/order/:id", verifyJwt, verifyAdmin, async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: ObjectId(id) };
+      const updatedDoc = {
+        $set: {
+          status: "delivered",
+        },
+      };
       const updatedBooking = await bookingCollection.updateOne(
         filter,
         updatedDoc
