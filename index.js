@@ -133,12 +133,14 @@ async function run() {
     });
 
     // booking collection
+
     // post booking
     app.post("/booking", async (req, res) => {
       const product = req.body;
       const result = await bookingCollection.insertOne(product);
       res.send(result);
     });
+
     // get all booking
     app.get("/booking", verifyJwt, async (req, res) => {
       const products = await bookingCollection.find({}).toArray();
@@ -150,6 +152,15 @@ async function run() {
       const products = await bookingCollection.find({ email }).toArray();
       res.send(products);
     });
+
+    // get single booking
+    app.get("/userBooking/:id", verifyJwt, async (req, res) => {
+    const product = await bookingCollection.findOne({
+        _id: ObjectId(req.params.id),
+      });
+      res.send(product);
+    });
+
     // delete self booking
     app.delete("/booking/:id", verifyJwt, async (req, res) => {
       const singleProduct = await bookingCollection.deleteOne({
