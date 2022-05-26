@@ -184,8 +184,14 @@ async function run() {
     });
 
     // get all user
-    app.get("/allUser", verifyJwt, async (req, res) => {
+    app.get("/allUser", verifyJwt, verifyAdmin, async (req, res) => {
       const users = await userCollection.find({}).toArray();
+      res.send(users);
+    });
+    // get single user
+    app.get("/user/:email", verifyJwt, async (req, res) => {
+      const email = req.params.email;
+      const users = await userCollection.findOne({ email: email });
       res.send(users);
     });
 
@@ -233,6 +239,27 @@ async function run() {
         updatedDoc
       );
       res.send(updatedBooking);
+    });
+    app.put("/profile/:email", verifyJwt, async (req, res) => {
+      const email = req.params.email;
+      const cart = req.body;
+      console.log(cart);
+      const filter = { email: email };
+      const options = { upsert: true };
+      const updatedDoc = {
+        $set: {
+          location: cart?.location,
+          education: cart?.education,
+          phone: cart?.phone,
+          linkedin: cart?.linkedin,
+        },
+      };
+      const updatedProfile = await userCollection.updateOne(
+        filter,
+        updatedDoc,
+        options
+      );
+      res.send(updatedProfile);
     });
   } finally {
   }
