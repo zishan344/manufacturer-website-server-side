@@ -56,7 +56,6 @@ async function run() {
 
     app.put("/users/admin/:email", verifyJwt, verifyAdmin, async (req, res) => {
       const email = req.params.email;
-      console.log(email);
       const filter = { email: email };
       const updateDoc = {
         $set: { role: "admin" },
@@ -64,6 +63,21 @@ async function run() {
       const result = await userCollection.updateOne(filter, updateDoc);
       res.send(result);
     });
+
+    app.patch(
+      "/users/removeAdmin/:email",
+      verifyJwt,
+      verifyAdmin,
+      async (req, res) => {
+        const email = req.params.email;
+        const filter = { email: email };
+        const updatedDoc = {
+          $set: { role: "user" },
+        };
+        const result = await userCollection.updateOne(filter, updatedDoc);
+        res.send(result);
+      }
+    );
 
     app.get("/admin/:email", verifyJwt, async (req, res) => {
       const email = req.params.email;
