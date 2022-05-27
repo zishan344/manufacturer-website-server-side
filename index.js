@@ -88,7 +88,7 @@ async function run() {
     });
 
     //  post a product
-    app.post("/product", async (req, res) => {
+    app.post("/product", verifyJwt, verifyAdmin, async (req, res) => {
       const product = req.body;
       const result = await productCollection.insertOne(product);
       res.send(result);
@@ -108,7 +108,7 @@ async function run() {
     });
 
     // delete product
-    app.delete("/product/:id", verifyJwt, async (req, res) => {
+    app.delete("/product/:id", verifyJwt, verifyAdmin, async (req, res) => {
       const singleProduct = await productCollection.deleteOne({
         _id: ObjectId(req.params.id),
       });
@@ -142,7 +142,7 @@ async function run() {
     });
 
     // get all booking
-    app.get("/booking", verifyJwt, async (req, res) => {
+    app.get("/booking", verifyJwt, verifyAdmin, async (req, res) => {
       const products = await bookingCollection.find({}).toArray();
       res.send(products);
     });
